@@ -1,26 +1,18 @@
+<!-- twitch-redirect.html -->
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Twitch Auth Redirect</title>
+  <title>Twitch OAuth</title>
+  <meta charset="utf-8">
 </head>
 <body>
-  <h2>正在完成 Twitch 登入...</h2>
+  <h2>正在登入 Twitch...</h2>
   <script>
-    function getTokenFromUrl() {
-      const hash = window.location.hash.substr(1); // 取 # 之後的內容
-      const params = new URLSearchParams(hash);
-      return params.get("access_token");
-    }
-
-    const token = getTokenFromUrl();
-    console.log("Access Token:", token);
-
-    // 傳回 Unity（假設你有在 WebGL/Unity 中掛接 listener）
+    const hash = window.location.hash.substr(1);
+    const params = new URLSearchParams(hash);
+    const token = params.get("access_token");
     window.opener?.postMessage({ type: "twitch-token", token: token }, "*");
-
-    // 顯示提示
-    document.body.innerHTML = "<h2>登入成功，請關閉此頁面</h2>";
+    document.body.innerHTML = "<h2>登入成功，請關閉此視窗</h2>";
   </script>
 </body>
 </html>
