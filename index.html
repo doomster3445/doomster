@@ -21,14 +21,20 @@
     </div>
     <script>
 
-        function isMobile() {
+  let unityInstance = null; // 🔧 把變數拉到全域
+
+  function isMobile() {
     return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   }
 
   function onUnityLoaded() {
     const deviceType = isMobile() ? "mobile" : "desktop";
-    console.log("目前使用裝置" + deviceType);
-    unityInstance.SendMessage("GMM", "SetDeviceType", deviceType);
+    console.log("目前使用裝置：" + deviceType);
+    if (unityInstance) {
+      unityInstance.SendMessage("GMM", "SetDeviceType", deviceType);
+    } else {
+      console.warn("unityInstance 尚未準備好");
+    }
   }
   
       window.addEventListener("load", function () {
@@ -103,6 +109,7 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
+                unityInstance = instance; 
           loadingBar.style.display = "none";
            onUnityLoaded();
         }).catch((message) => {
