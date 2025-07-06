@@ -21,6 +21,12 @@
     </div>
     <script>
 
+  const ts = new Date().getTime();
+  config.loaderUrl += "?v=" + ts;
+  config.dataUrl += "?v=" + ts;
+  config.frameworkUrl += "?v=" + ts;
+  config.codeUrl += "?v=" + ts;
+  
   let unityInstance = null; // 🔧 把變數拉到全域
 
   function isMobile() {
@@ -117,7 +123,6 @@
         });
       };
 
-      onUnityLoaded();
       document.body.appendChild(script);
     </script>
   </body>
