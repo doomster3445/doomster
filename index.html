@@ -27,6 +27,7 @@
 
   function onUnityLoaded() {
     const deviceType = isMobile() ? "mobile" : "desktop";
+    console.log("目前使用裝置" + deviceType);
     unityInstance.SendMessage("GMM", "SetDeviceType", deviceType);
   }
   
