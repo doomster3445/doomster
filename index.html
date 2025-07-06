@@ -20,6 +20,16 @@
       <div id="unity-warning"> </div>
     </div>
     <script>
+
+        function isMobile() {
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }
+
+  function onUnityLoaded() {
+    const deviceType = isMobile() ? "mobile" : "desktop";
+    unityInstance.SendMessage("DeviceManager", "SetDeviceType", deviceType);
+  }
+  
       window.addEventListener("load", function () {
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.register("ServiceWorker.js");
