@@ -21,12 +21,27 @@
     </div>
     <script>
 
-  const ts = new Date().getTime();
-  config.loaderUrl += "?v=" + ts;
-  config.dataUrl += "?v=" + ts;
-  config.frameworkUrl += "?v=" + ts;
-  config.codeUrl += "?v=" + ts;
-  
+mergeInto(LibraryManager.library, {
+  CallJS: function(ptr) {
+    var msg = UTF8ToString(ptr);
+    console.log("來自 Unity 的 JS 呼叫：" + msg);
+    onUnityLoaded();
+    window.onUnityCall && window.onUnityCall(msg); // 自定義 callback
+  }
+});
+
+  window.onUnityCall = function (msg) {
+    console.log("Unity 調用 JS 傳來：" + msg);
+
+    if (msg === "askDeviceType") {
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      const deviceType = isMobile ? "mobile" : "desktop";
+
+      // 回呼 Unity 的 SetDeviceType 方法
+      unityInstance.SendMessage("GMM", "SetDeviceType", deviceType);
+    }
+  };
+
   let unityInstance = null; // 🔧 把變數拉到全域
 
   function isMobile() {
