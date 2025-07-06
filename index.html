@@ -21,15 +21,6 @@
     </div>
     <script>
 
-mergeInto(LibraryManager.library, {
-  CallJS: function(ptr) {
-    var msg = UTF8ToString(ptr);
-    console.log("來自 Unity 的 JS 呼叫：" + msg);
-    onUnityLoaded();
-    window.onUnityCall && window.onUnityCall(msg); // 自定義 callback
-  }
-});
-
   window.onUnityCall = function (msg) {
     console.log("Unity 調用 JS 傳來：" + msg);
 
