@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | PredictionSystem</title>
+    <title>四路導引系統 v1.2</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <link rel="manifest" href="manifest.webmanifest">
   </head>
   <body>
     <div id="unity-container">
-      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=1008 height=567 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -31,9 +31,49 @@
       // 回呼 Unity 的 SetDeviceType 方法
       unityInstance.SendMessage("GMM", "SetDeviceType", deviceType);
     }
+
+    if (msg === "getData") {
+        FetchGoogleSheetAndSend();
+    }
   };
 
   let unityInstance = null; // 🔧 把變數拉到全域
+
+async function FetchGoogleSheetAndSend() {
+    try {
+        const url = "https://docs.google.com/spreadsheets/d/1bQCSs7qrM95m5Y0P8Zjhq0pTIckcTkNMAQfH2A7m_rU/export?format=csv";
+        const response = await fetch(url);
+        const text = await response.text();
+
+        // 拆成行
+        const rows = text.split("\n");
+        // 取第一行
+        const firstRow = rows[0].split(",");
+        // 取第一欄第一筆
+        const firstValue = firstRow[0];
+
+        //console.log("First Value:", firstValue);
+
+        // 傳給 Unity (假設 Unity 物件叫 "GameManager"，方法叫 "OnReceiveCSV")
+        unityInstance.SendMessage("GMM", "GetData", firstValue);
+
+    } catch (err) {
+        console.error("Fetch failed:", err);
+    }
+}
+
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // 只攔截本地資源，不攔截 Google Docs 之類的外部網址
+  if (url.origin === location.origin) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  }
+});
 
   function isMobile() {
     return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -49,11 +89,27 @@
     }
   }
   
-      window.addEventListener("load", function () {
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.register("ServiceWorker.js");
-        }
-      });
+      // window.addEventListener("load", function () {
+      //   if ("serviceWorker" in navigator) {
+      //     navigator.serviceWorker.register("ServiceWorker.js");
+      //   }
+      // });
+
+      self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // 如果是 google 的，就不要攔截
+  if (url.hostname.includes("docs.google.com")) {
+    return;
+  }
+
+  // 其他照舊
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
+});
 
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
@@ -103,7 +159,7 @@
       // Set this to false if you want to decouple this synchronization from
       // happening inside the engine, and you would instead like to size up
       // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+      //config.matchWebGLToCanvasSize = false;
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
